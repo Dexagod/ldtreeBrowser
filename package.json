@@ -9,8 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@dexagod/string_normalizer": "file:../normalizer",
     "@types/node": "^12.12.14",
     "@types/typescript": "^2.0.0",
-    "ldfetch": "^1.1.2"
+    "ldfetch": "file:../ldfetch"
   }
 }

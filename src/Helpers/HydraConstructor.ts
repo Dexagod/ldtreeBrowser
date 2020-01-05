@@ -17,20 +17,19 @@ const RELATIONAL_TYPES: Array<string> = [
 
 const DEFAULTTOTALITEMSVALUE : number = Infinity
 
-export class TreeConstructor {
+export class HydraConstructor {
 
   collections: Set<string> = new Set();
   collectionMembers : Map<string, Array<string>> = new Map();
   collectionViews : Map<string, Array<string>> = new Map();
 
-  nodeIds: Set<string> = new Set();
+  partialCollectionViewIds: Set<string> = new Set();
   nodeRemainingItems: Map<string, number> = new Map();
-  nodeRelations: Map<string, Array<string>> = new Map();
 
-  relationIds: Set<string> = new Set();
-  relationType: Map<string, string> = new Map();
-  relationValue: Map<string, any> = new Map();
-  relationNode: Map<string, string> = new Map();
+  first: Map<string,any> = new Map();
+  previous: Map<string,any> = new Map();
+  next: Map<string,any> = new Map();
+  last: Map<string,any> = new Map();
   
   getProperties(quads : any) : Array<Node>{
     for (let quad of quads){
@@ -39,22 +38,10 @@ export class TreeConstructor {
           this.collections.add(quad.subject.value);
 
       }  else if (quad.predicate.value === TYPE &&
-          quad.object.value === TREEONTOLOGY + "Node") {
-        const nodeId = quad.subject.value;
-        this.nodeIds.add(nodeId)
+          quad.object.value === HYDRA + "PartialCollectionView") {
+        const pcvId = quad.subject.value;
+        this.partialCollectionViewIds.add(pcvId)
       
-      } else if (quad.predicate.value === TREEONTOLOGY + "relation") {
-        const nodeId = quad.subject.value;
-        const relationBlankId = quad.object.value;
-
-        let relations = this.nodeRelations.get(nodeId)
-        if (relations !== undefined){
-          relations.push(relationBlankId)
-          this.nodeRelations.set(nodeId, relations)
-        }  else {
-          this.nodeRelations.set(nodeId, [relationBlankId])
-        }
-
       } else if (quad.predicate.value === HYDRA + "totalItems") {
         const nodeId = quad.subject.value;
         const remainingItems = quad.object.value;
@@ -65,37 +52,8 @@ export class TreeConstructor {
         const remainingItems = quad.object.value;
         this.nodeRemainingItems.set(nodeId, remainingItems)
 
-      } else if (quad.predicate.value === TYPE) {
-        // Test all relation types
-        const relationId = quad.subject.value;
-        const relationType = quad.object.value;
-        if (RELATIONAL_TYPES.indexOf(relationType) != -1){
-          this.relationIds.add(relationId)
-          this.relationType.set(relationId, relationType)
-        }
-      } else if (quad.predicate.value === TREEONTOLOGY + "value") {
-        const nodeId = quad.subject.value;
-        const relationValue = quad.object.value;
-        this.relationValue.set(nodeId, relationValue)
-
-      } else if (quad.predicate.value === TREEONTOLOGY + "node") {
-        const nodeId = quad.subject.value;
-        const relationNode = quad.object.value;
-        this.relationNode.set(nodeId, relationNode)
-      }
-
-      else if (quad.predicate.value === HYDRA + "view") {
+      } else if (quad.predicate.value === HYDRA + "view") {
         // TODO:: REMOVE
-        const collectionId = quad.subject.value;
-        const viewNode = quad.object.value;
-        let views = this.collectionViews.get(collectionId)
-        if (views !== undefined){
-          views.push(viewNode)
-          this.collectionViews.set(collectionId, views)
-        }  else {
-          this.collectionViews.set(collectionId, [viewNode])
-        }
-      } else if (quad.predicate.value === TREEONTOLOGY + "view") {
         const collectionId = quad.subject.value;
         const viewNode = quad.object.value;
         let views = this.collectionViews.get(collectionId)
@@ -115,6 +73,22 @@ export class TreeConstructor {
         }  else {
           this.collectionMembers.set(collectionId, [collectionMemberId])
         }
+      } else if (quad.predicate.value === HYDRA + "first") {
+        const pcvId = quad.subject.value;
+        let identifier = quad.object.value;
+        this.first.set(pcvId, identifier)
+      } else if (quad.predicate.value === HYDRA + "previous") {
+        const pcvId = quad.subject.value;
+        let identifier = quad.object.value;
+        this.previous.set(pcvId, identifier)
+      } else if (quad.predicate.value === HYDRA + "next") {
+        const pcvId = quad.subject.value;
+        let identifier = quad.object.value;
+        this.next.set(pcvId, identifier)
+      } else if (quad.predicate.value === HYDRA + "last") {
+        const pcvId = quad.subject.value;
+        let identifier = quad.object.value;
+        this.last.set(pcvId, identifier)
       }
     };
 
@@ -122,31 +96,6 @@ export class TreeConstructor {
     metadataObject.quads = quads;
     return metadataObject
   };
-
-  private constructRelation(relationBlankId : string) : Relation | null {
-    let relationType = this.relationType.get(relationBlankId)
-    let relationValue = this.relationValue.get(relationBlankId)
-    let relationNode = this.relationNode.get(relationBlankId)
-    if (relationType === undefined || relationType === null ||
-        relationValue === undefined || relationValue === null ||
-        relationNode === undefined || relationNode === null ){
-          return null;
-        }
-    return new Relation(relationType, relationValue, relationNode)
-  }
-
-  private constructRelationsForNode(nodeId: string) : Array<Relation> {
-    let relations = new Array<Relation>();
-    let relationBlankIds = this.nodeRelations.get(nodeId)
-    if (relationBlankIds === null || relationBlankIds === undefined){ return [] }
-    for (let relationBlankId of relationBlankIds){
-      let relation = this.constructRelation(relationBlankId)
-      if (relation !== undefined && relation !== null){
-        relations.push(relation)
-      }
-    }
-    return relations;
-  }
 
   private constructRemainingItemsForNode(nodeId: string) : number {
     let remainingItems = this.nodeRemainingItems.get(nodeId)
@@ -167,12 +116,16 @@ export class TreeConstructor {
     return collections;
   }
 
-  private constructNodes() : Array<Node> {
-    let nodes: Array<Node> = new Array();
-    for (const nodeId of Array.from(this.nodeIds)){
-      nodes.push( new Node(nodeId, this.constructRelationsForNode(nodeId), this.constructRemainingItemsForNode(nodeId)) )
+  private constructNodes() : Array<PCV> {
+    let pcvIds: Array<PCV> = new Array();
+    for (const pcvId of Array.from(this.partialCollectionViewIds)){
+      let first = this.first.get(pcvId) ? this.first.get(pcvId) : null
+      let previous = this.previous.get(pcvId) ? this.previous.get(pcvId) : null
+      let next = this.next.get(pcvId) ? this.next.get(pcvId) : null
+      let last = this.last.get(pcvId) ? this.last.get(pcvId) : null
+      pcvIds.push( new PCV(pcvId, first, previous, next, last, this.constructRemainingItemsForNode(pcvId)) )
     }
-    return nodes;
+    return pcvIds;
   }
 
 
@@ -187,27 +140,21 @@ export class TreeConstructor {
   }
 }
 
-export class Node {
+export class PCV {
   id: string;
-  relations: Array<Relation> = [];
+  first: any;
+  previous: any;
+  next: any;
+  last: any;
   remainingItems : number;
 
-  public constructor(id: string, relations : Array<Relation>, remainingItems : number) {
+  public constructor(id: string, first: any, previous: any, next: any, last: any, remainingItems : number) {
     this.id = id;
-    this.relations = relations;
+    this.first = first;
+    this.previous = previous;
+    this.next = next;
+    this.last = last;
     this.remainingItems = remainingItems;
-  }
-}
-
-export class Relation {
-  type: string;
-  value: any;
-  node : string;
-
-  constructor (type: string, value: any, node: string) {
-    this.type = type;
-    this.value = value;
-    this.node = node;
   }
 }
 
