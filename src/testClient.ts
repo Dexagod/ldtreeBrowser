@@ -2,14 +2,15 @@
 
 import { AutocompleteClient } from './AutocompleteClient';
 import { PrefixQuery } from './Queries/PrefixQuery';
-
+import { BTreePrefixQuery } from './Queries/BTreePrefixQuery';
 
 async function main(){
   let shaclpath = "http://xmlns.com/foaf/0.1/name";
   let maxamount = 50;
   
   let client = new AutocompleteClient(maxamount, shaclpath)
-  let collectionUrl = "http://193.190.127.164/stopsperfixtest/3000/node0.jsonld#Collection"
+  let collectionUrl = "http://193.190.127.164/stopsperfixtest/1000/node0.jsonld#Collection"
+  // let collectionUrl = "http://193.190.127.164/stopsbtreetest/1000/node0.jsonld#Collection"
   
   let cch = 0;
   let ccm = 0;
@@ -50,11 +51,12 @@ async function main(){
     let searchvalue = data.searchvalue;
     let quad = data.data;
     let count = data.count;
-    // console.log("prefix", searchvalue, "data", quad.object.value, quad.subject.value, count)
+    console.log("prefix", searchvalue, "data", quad.object.value, quad.subject.value, count)
   });
   
   for (let prefix of ["S", "Si", "Sin", "Sint", "Sint-", "Sint-D", "Sint-Denijsl", "Sint-Denijslaan", "Sint-Denijslaanweg", "Br", "Brus", "Brussel", "brusselse", "Test", "heer"]){
     await client.query(prefix, PrefixQuery, shaclpath, collectionUrl)
+    // await client.query(prefix, BTreePrefixQuery, shaclpath, collectionUrl)
   }
 
   function printstats(){
