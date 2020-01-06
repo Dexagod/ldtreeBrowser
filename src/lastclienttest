@@ -1,0 +1,134 @@
+import {
+  EventEmitter
+} from "events";
+import {
+  Parser
+} from './Parser';
+const fs = require("fs")
+
+const PromiseQueue = require("easy-promise-queue").default;
+const normalizeString = function (e: string) {
+  return e.toLowerCase()
+}
+
+export class AutocompleteClient extends EventEmitter {
+
+  private parser: any;
+  private requestCount = 0;
+
+  private previousQuery: any = null;
+
+  private queryqueue: any;
+  private MAXAMOUNT: number;
+
+  constructor(maxamount: number, shaclpath: string) {
+    super();
+    this.parser = new Parser();
+    this.parser.on("request", (e: any) => this.requestCount += 1)
+    this.queryqueue = new PromiseQueue({
+      concurrency: 1
+    });
+    this.MAXAMOUNT = maxamount
+
+  }
+
+  async query(searchvalue: string, queryClass: any, shaclpath: string, queryURL: any) {
+    console.log("SEARCH:", searchvalue)
+
+    console.log("previousQuery", this.previousQuery)
+    let previousQuery = this.previousQuery
+
+    let MAXAMOUNT = this.MAXAMOUNT
+    let parser = this.parser;
+    let emitFunction = this.emit
+
+
+    let previousQueryProperties = await previousQuery;
+    console.log("previousQueryProperties", previousQueryProperties)
+
+    this.queryqueue.add(() => {
+      let emittedItems = 0;
+
+      let query = new queryClass(parser, queryURL);
+      let previousQueryItems = new Array();
+      let previousQuerySession: any = null;
+      let previousQuerySearchvalue: any = null;
+
+      if (previousQueryProperties === null || previousQueryProperties === undefined) {
+      } else {
+        previousQueryItems = previousQueryProperties["items"]
+        previousQuerySession = previousQueryProperties["session"]
+        previousQuerySearchvalue = previousQueryProperties["searchvalue"]
+      }
+
+
+      let promise = new Promise(
+        function (resolve, reject) {
+        let currentItems = new Array();
+        let currentSession: any = null;
+
+        if (!(previousQuerySearchvalue === null || !searchvalue.startsWith(previousQuerySearchvalue) || searchvalue.length < previousQuerySearchvalue.length)) {
+          for (let quad of previousQueryItems) {
+            if (normalizeString(quad.object.value).startsWith(normalizeString(searchvalue))) {
+              currentItems.push(quad);
+              emitFunction("data", {
+                data: quad,
+                searchvalue: searchvalue,
+                count: emittedItems
+              })
+            }
+          }
+          currentSession = previousQuerySession;
+        }
+
+
+        let currentItemsMap = currentItems.map(e => e.subject.value)
+
+        if (currentItems.length < MAXAMOUNT) {
+          query.on("data", (data: any) => {
+            for (let quad of data.quads) {
+              if (quad.predicate.value === shaclpath && normalizeString(quad.object.value).startsWith(normalizeString(searchvalue))) {
+                if (currentItemsMap.indexOf(quad.subject.value === -1)) {
+                  currentItems.push(quad)
+                  emitFunction("data", {
+                    data: quad,
+                    searchvalue: searchvalue,
+                    count: emittedItems
+                  })
+                  if (currentItems.length >= MAXAMOUNT) {
+                    query.interrupt();
+                  }
+                }
+              }
+            }
+          })
+          console.log("QUERY NEW QUERY", searchvalue)
+          query.query(queryURL, searchvalue, currentSession).then((resultsession: any) => {
+            let resultObject = {
+              "session": resultsession,
+              "items": currentItems,
+              "searchvalue": searchvalue,
+            }
+            resolve(resultObject)
+          }).catch((error: any) => {
+            let resultObject = {
+              "session": null,
+              "items": currentItems,
+              "searchvalue": searchvalue,
+            }
+            resolve(resultObject)
+          })
+        } else { // We already had MAXCOUNT items
+          let resultObject = {
+            "session": currentSession,
+            "items": currentItems,
+            "searchvalue": searchvalue,
+          }
+          resolve(resultObject)
+        }
+      })
+      this.previousQuery = promise;
+    });
+  }
+
+}

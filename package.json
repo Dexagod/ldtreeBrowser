@@ -9,9 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@dexagod/string_normalizer": "file:../normalizer",
     "@types/node": "^12.12.14",
     "@types/typescript": "^2.0.0",
-    "ldfetch": "file:../ldfetch"
+    "easy-promise-queue": "^0.5.7",
+    "ldfetch": "file:../ldfetch",
+    "node-cache": "^5.1.0",
+    "terraformer-wkt-parser": "^1.2.1"
   }
 }

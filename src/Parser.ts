@@ -1,10 +1,16 @@
 import { TreeConstructor } from './Helpers/TreeConstructor';
 import { EventEmitter } from 'events';
-import { HydraConstructor } from './Helpers/HydraConstructor';
+import { HydraConstructor } from './Helpers/HydraConstructor'
+import Cache = require('node-cache');
 let fetcher = require('ldfetch')
 
 export class Parser extends EventEmitter{
   private ldfetch : any;
+  _cache = new Cache({
+    stdTTL: 10000, //standard time to live is 60 seconds
+    checkperiod: 1000 //will delete entries each 1 minute
+  });
+
   constructor(){
     super()
     this.ldfetch = new fetcher({})
@@ -14,6 +20,9 @@ export class Parser extends EventEmitter{
     this.ldfetch.on("cache-hit", (obj:any) => {
       this.emit("client-cache-hit", obj)
     }) 
+    this.ldfetch.on("downloaded", (obj:any) => {
+      this.emit("downloaded", obj)
+    })
     this.ldfetch.on("serverresponse", (obj:any) => {
       let serverCacheStatus = null
       for (let i = 0; i < obj.rawHeaders.length; i++){
@@ -22,21 +31,40 @@ export class Parser extends EventEmitter{
           break
         }
       }
-      let totalBytesRead = obj.socket.bytesRead
-      let url = obj.responseUrl
-      this.emit("server-cache-status", serverCacheStatus)
-      this.emit("bandwith", totalBytesRead)
+      if (serverCacheStatus === "HIT"){
+        this.emit("server-cache-hit", serverCacheStatus)
+      } else {
+        this.emit("server-cache-miss", serverCacheStatus)
+      }
     })
+  }
+
+  checkCache(url : string){
+    let cached = this._cache.get(url.replace(/#.*/, ''));
+    if (cached !== undefined){
+      this.emit("client-cache-hit");
+    }
+    return cached;
   }
   // private treeConstructor = new TreeConstructor()
   async process(id : string){
-    let triples = (await this.ldfetch.get(id)).triples
-    return new TreeConstructor().getProperties(triples)
+    let result = this.checkCache(id)
+    if (result === undefined){
+      this.emit("request", id)
+      let triples = (await this.ldfetch.get(id)).triples
+      result = new TreeConstructor().getProperties(triples)
+    }
+    return result;
   }
 
   async processHydra(id : string){
-    let triples = (await this.ldfetch.get(id)).triples
-    return new HydraConstructor().getProperties(triples)
+    let result = this.checkCache(id)
+    if (result === undefined){
+      this.emit("request", id)
+      let triples = (await this.ldfetch.get(id)).triples
+      result = new HydraConstructor().getProperties(triples)
+    }
+    return result
   }
 
   
