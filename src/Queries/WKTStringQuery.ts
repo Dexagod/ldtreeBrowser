@@ -1,5 +1,4 @@
 import { Query } from './Query';
-const parserClass = require('treebrowser').Parser
 const terraformer = require('terraformer')
 const terraformerparser = require('terraformer-wkt-parser')
 const EventEmitter = require('events');

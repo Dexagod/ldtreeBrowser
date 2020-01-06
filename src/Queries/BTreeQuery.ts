@@ -1,5 +1,4 @@
 import { Query } from './Query';
-const parserClass = require('treebrowser').Parser
 
 export class BTreeQuery extends Query { 
   async followChildRelations(nodeId : any, nodesMetadata : any, value : any, level : any) : Promise<Array<any>> {
