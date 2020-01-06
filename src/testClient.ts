@@ -1,7 +1,7 @@
 
 
-import { AutocompleteClient } from './src/AutocompleteClient';
-import { PrefixQuery } from './src/Queries/PrefixQuery';
+import { AutocompleteClient } from './AutocompleteClient';
+import { PrefixQuery } from './Queries/PrefixQuery';
 
 
 async function main(){

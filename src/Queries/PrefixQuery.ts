@@ -1,5 +1,4 @@
 import { Query } from './Query';
-// const normalizeString = require('stringnormalizer');
 
 const normalizeString = function(e : string) {return e.toLowerCase()}
 
