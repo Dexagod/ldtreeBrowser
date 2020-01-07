@@ -33,7 +33,6 @@ export class PartialCollectionViewQuery extends Query {
 
   async processId(id : any){
     if (this.terminated || this.processedIds.indexOf(id) !== -1) { return null }
-    console.log("processing id", id)
     return await this.parser.processHydra(id)
   }
 

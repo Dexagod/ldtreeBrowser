@@ -50,9 +50,11 @@ export class Parser extends EventEmitter{
   async process(id : string){
     let result = this.checkCache(id)
     if (result === undefined){
+      console.log("processing id", id)
       this.emit("request", id)
       let triples = (await this.ldfetch.get(id)).triples
       result = new TreeConstructor().getProperties(triples)
+      this._cache.set(id.replace(/#.*/, ''), result)
     }
     return result;
   }
@@ -60,9 +62,11 @@ export class Parser extends EventEmitter{
   async processHydra(id : string){
     let result = this.checkCache(id)
     if (result === undefined){
+      console.log("processing id", id)
       this.emit("request", id)
       let triples = (await this.ldfetch.get(id)).triples
       result = new HydraConstructor().getProperties(triples)
+      this._cache.set(id.replace(/#.*/, ''), result)
     }
     return result
   }

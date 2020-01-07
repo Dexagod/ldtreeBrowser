@@ -78,7 +78,6 @@ export abstract class Query extends EventEmitter{
 
   async processId(id : any){
     if (this.terminated || this.processedIds.indexOf(id) !== -1) { return null }
-    console.log("processing id", id)
     return await this.parser.process(id)
   }
 

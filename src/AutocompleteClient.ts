@@ -8,6 +8,7 @@ const normalizeString = function(e:string) {return e.toLowerCase()}
 export class AutocompleteClient extends EventEmitter{
   
   private parser: any;
+  private previousQueryResponse : any = null;
   private previousQuery : any = null;
 
   private queryqueue: any;
@@ -39,18 +40,15 @@ export class AutocompleteClient extends EventEmitter{
   }
 
   async query(searchvalue: string, queryClass : any, shaclpath: string, queryURL: any){
-    console.log("SEARCH:", searchvalue)
 
-    let prevqueryprops = await this.previousQuery;
-    // console.log("previous query props", prevqueryprops)
-  
+    let prevqueryprops = await this.previousQueryResponse;
 
     let MAXAMOUNT = this.MAXAMOUNT
     let parser = this.parser;
     let emittedItems = 0;
 
     let query = new queryClass(parser, queryURL);
-
+    this.previousQuery = query;
 
 
     if ( prevqueryprops !== null && ! (prevqueryprops["searchvalue"] === null || ! searchvalue.startsWith(prevqueryprops["searchvalue"]) || searchvalue.length < prevqueryprops["session"].length ) ){
@@ -78,7 +76,10 @@ export class AutocompleteClient extends EventEmitter{
 
 
     this.queryqueue.add(() => {
-      let newQuery = new Promise(async function (resolve, reject) {
+      let newQueryResponse = new Promise(async function (resolve, reject) {
+        let allItems = 0
+        let usedItems = 0;
+
         let currentItems = new Array();
         let currentSession: any = null;
         
@@ -96,8 +97,10 @@ export class AutocompleteClient extends EventEmitter{
     
         if (currentItems.length < MAXAMOUNT){
           query.on("data", (data: any) => {
+            let usefullIds = []
             for(let quad of data.quads){
               if (quad.predicate.value === shaclpath && normalizeString(quad.object.value).startsWith(normalizeString(searchvalue))){
+                usefullIds.push(quad.subject.value)
                 if (currentItemsMap.indexOf(quad.subject.value === -1)){
                   currentItems.push(quad)
                   if (currentItems.length >= MAXAMOUNT){
@@ -106,14 +109,22 @@ export class AutocompleteClient extends EventEmitter{
                 }
               }
             }
+
+            for(let quad of data.quads){
+              allItems += 1
+              if (usefullIds.indexOf(quad.subject.value) !== -1){
+                usedItems += 1
+              }
+            }
           })
-          console.log("QUERY NEW QUERY", searchvalue)
           query.query(queryURL, searchvalue, currentSession).then( (resultsession: any) => {
             let resultObject = {
               "session": resultsession,
               "items": currentItems,
               "searchvalue": searchvalue,
-              "fulfilled": false
+              "fulfilled": false,
+              "useditems": usedItems,
+              "allitems": allItems,
             }
             resolve(resultObject)
           }).catch( (error: any) => {
@@ -121,28 +132,42 @@ export class AutocompleteClient extends EventEmitter{
               "session": null,
               "items": currentItems,
               "searchvalue": searchvalue,
-              "fulfilled": false
+              "fulfilled": false,
+              "useditems": usedItems,
+              "allitems": allItems,
             }
             resolve(resultObject)
           })
         } else {
-          console.log("already fulfilled")
           let resultObject = {
             "session": currentSession,
             "items": currentItems,
             "searchvalue": searchvalue,
-            "fulfilled": true
+            "fulfilled": true,
+            "useditems": usedItems,
+            "allitems": allItems,
           } 
           resolve(resultObject)
         }
       })
-      this.previousQuery = newQuery;
-      newQuery.then((resultObject:any) => {
-        this.emit("neededquery", resultObject.fulfilled)
+      this.previousQueryResponse = newQueryResponse;
+      newQueryResponse.then((resultObject:any) => {
+        this.emit("querystats", 
+        {
+          fulfilled: resultObject.fulfilled,
+          useditems: resultObject.useditems,
+          allitems: resultObject.allitems
+        })
       })
-      return newQuery; 
+      return newQueryResponse; 
     });
     
+  }
+
+  interrupt(){
+    if (this.previousQuery !== null){
+      this.previousQuery.interrupt()
+    }
   }
 
 }
