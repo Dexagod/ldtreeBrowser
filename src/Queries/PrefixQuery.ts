@@ -13,7 +13,7 @@ export class PrefixQuery extends Query {
       if (node.id === nodeId){  
         for (let relation of node.relations){
           if (relation.type === "https://w3id.org/tree#PrefixRelation"){
-              runningQueries.push(await this.followChildWithValue(relation.node, relation.value, value, level))
+            runningQueries.push(await this.followChildWithValue(relation.node, relation.value, value, level))
           }
         }
       }

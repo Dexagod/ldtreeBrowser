@@ -3,14 +3,17 @@
 import { AutocompleteClient } from './AutocompleteClient';
 import { PrefixQuery } from './Queries/PrefixQuery';
 import { BTreePrefixQuery } from './Queries/BTreePrefixQuery';
+import { AutocompleteClientParrallel } from './AutocompleteClientParrallel';
 const fs = require("fs")
+
+let totalResults = new Array()
 
 async function main(){
   // let shaclpath = "http://xmlns.com/foaf/0.1/name";
   let shaclpath = "http://www.w3.org/2000/01/rdf-schema#label";
   let maxamount = 50;
   
-  let client = new AutocompleteClient(maxamount, shaclpath)
+  let client = new AutocompleteClientParrallel(maxamount, shaclpath, 3, 2)
   // let collectionUrl = "http://193.190.127.164/stopsperfixtest/1000/node0.jsonld#Collection"
   let collectionUrl = "http://193.190.127.164/streetsbtreetest/100/node0.jsonld#Collection"
   
@@ -52,6 +55,7 @@ async function main(){
     let searchvalue = data.searchvalue;
     let quad = data.data;
     let count = data.count;
+    totalResults.push(quad)
     console.log("prefix", searchvalue, "data", quad.object.value, quad.subject.value, count)
   });
   
@@ -65,10 +69,11 @@ async function main(){
 
     // await new Promise(resolve => setTimeout(resolve, 10));  // Wait 0.1 second to simulate a keypress
 
-    await new Promise(resolve => setTimeout(resolve, 100));  // Wait 0.1 second to simulate a keypress
-    client.interrupt()
+    // await new Promise(resolve => setTimeout(resolve, 100));  // Wait 0.1 second to simulate a keypress
+    // client.interrupt()
   }
   console.timeEnd("running")
+  console.log("TOTALITEMS", totalResults.length)
 
   function printstats(){
     // console.log(ccm, cch, scm, sch, bdw, yesq, noq)

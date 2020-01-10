@@ -11,15 +11,11 @@ class Counter {
   count(i : any){
     let lastPromise = this.lastPromise
     this.pq.add(() => {
-      console.log("")
-      console.log("creating promise", i)
       let promise = new Promise(async function (resolve, reject) {
         if (lastPromise !== null){
           let lastPromiseValue = await lastPromise
-          console.log("PREVIOUS TASK VALUE", lastPromiseValue)
         }
         setTimeout(function () {
-          console.log('task', i);
           resolve(i);
         }, i * 100)
       });

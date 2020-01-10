@@ -31,9 +31,17 @@ export class PartialCollectionViewQuery extends Query {
     return returnlist
   }
 
-  async processId(id : any){
-    if (this.terminated || this.processedIds.indexOf(id) !== -1) { return null }
-    return await this.parser.processHydra(id)
+  // async processId(id : any){
+  //   if (this.terminated || this.processedIds.indexOf(id) !== -1) { return null }
+  //   return await this.parser.processHydra(id)
+  // }
+
+
+  async processIdTask(id : any, query: any){
+    if (query.terminated || query.processedIds.indexOf(id) !== -1) { return null }
+    let processed =  await query.parser.process(id)
+    query.processedIds.push(id)
+    return processed
   }
 
 }

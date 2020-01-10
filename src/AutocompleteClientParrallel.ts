@@ -4,7 +4,7 @@ import { Parser } from './Parser';
 const PromiseQueue = require("easy-promise-queue").default;
 const normalizeString = function(e:string) {return e.toLowerCase()}
 
-export class AutocompleteClient extends EventEmitter{
+export class AutocompleteClientParrallel extends EventEmitter{
   
   private parser: any;
   private previousQueryResponse : any = null;
@@ -16,7 +16,9 @@ export class AutocompleteClient extends EventEmitter{
   private queryqueue: any;
   private MAXAMOUNT: number;
 
-  constructor(maxamount: number, shaclpath: string){
+  private queryTasks : number;
+
+  constructor(maxamount: number, shaclpath: string, activeQueries = 1, queryTasks=1){
     super();
     this.parser = new Parser();
     
@@ -36,8 +38,9 @@ export class AutocompleteClient extends EventEmitter{
       this.emit("downloaded", obj)
     }) 
 
-    this.queryqueue = new PromiseQueue({concurrency: 1});
+    this.queryqueue = new PromiseQueue({concurrency: activeQueries});
     this.MAXAMOUNT = maxamount
+    this.queryTasks = queryTasks;
 
   }
 
@@ -49,7 +52,7 @@ export class AutocompleteClient extends EventEmitter{
     let parser = this.parser;
     let emittedItems = 0;
 
-    let query = new queryClass(parser, queryURL);
+    let query = new queryClass(parser, queryURL, this.queryTasks);
     this.previousQuery = query;
 
 
