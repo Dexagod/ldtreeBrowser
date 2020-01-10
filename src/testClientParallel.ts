@@ -1,5 +1,3 @@
-
-
 import { AutocompleteClient } from './AutocompleteClient';
 import { PrefixQuery } from './Queries/PrefixQuery';
 import { BTreePrefixQuery } from './Queries/BTreePrefixQuery';
@@ -13,7 +11,7 @@ async function main(){
   let shaclpath = "http://www.w3.org/2000/01/rdf-schema#label";
   let maxamount = 50;
   
-  let client = new AutocompleteClientParrallel(maxamount, shaclpath, 3, 2)
+  let client = new AutocompleteClientParrallel(maxamount, shaclpath, 1, 1)
   // let collectionUrl = "http://193.190.127.164/stopsperfixtest/1000/node0.jsonld#Collection"
   let collectionUrl = "http://193.190.127.164/streetsbtreetest/100/node0.jsonld#Collection"
   
@@ -56,7 +54,7 @@ async function main(){
     let quad = data.data;
     let count = data.count;
     totalResults.push(quad)
-    console.log("prefix", searchvalue, "data", quad.object.value, quad.subject.value, count)
+    // console.log("prefix", searchvalue, "data", quad.object.value, quad.subject.value, count)
   });
   
   let straatNamen = fs.readFileSync("straatnamen.txt").toString().split("\n")
@@ -65,13 +63,14 @@ async function main(){
   for (let prefix of straatNamen.slice(0, 100)){
     console.log(prefix)
     // await client.query(prefix, PrefixQuery, shaclpath, collectionUrl)
-    await client.query(prefix, BTreePrefixQuery, shaclpath, collectionUrl)
+    await client.query(prefix, BTreePrefixQuery, shaclpath, collectionUrl, true)
 
     // await new Promise(resolve => setTimeout(resolve, 10));  // Wait 0.1 second to simulate a keypress
 
     // await new Promise(resolve => setTimeout(resolve, 100));  // Wait 0.1 second to simulate a keypress
     // client.interrupt()
   }
+  await client.awaitFinish();
   console.timeEnd("running")
   console.log("TOTALITEMS", totalResults.length)
 

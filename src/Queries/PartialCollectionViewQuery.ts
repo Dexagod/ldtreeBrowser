@@ -1,4 +1,4 @@
-import { Query } from './Query';
+import { Query } from './Query_single';
 
 export class PartialCollectionViewQuery extends Query {  
 

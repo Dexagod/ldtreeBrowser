@@ -1,4 +1,4 @@
-import { Query } from './Query';
+import { Query } from './Query_single';
 
 export class BTreeQuery extends Query { 
   async followChildRelations(nodeId : any, nodesMetadata : any, value : any, level : any) : Promise<Array<any>> {

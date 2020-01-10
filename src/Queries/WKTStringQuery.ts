@@ -1,4 +1,4 @@
-import { Query } from './Query';
+import { Query } from './Query_single';
 const terraformer = require('terraformer')
 const terraformerparser = require('terraformer-wkt-parser')
 const EventEmitter = require('events');

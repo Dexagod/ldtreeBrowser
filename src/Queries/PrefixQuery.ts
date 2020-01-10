@@ -1,4 +1,4 @@
-import { Query } from './Query';
+import { Query } from './Query_single';
 
 const normalizeString = function(e : string) {return e.toLowerCase()}
 
