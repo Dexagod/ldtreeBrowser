@@ -38,7 +38,7 @@ export class PartialCollectionViewQuery extends Query {
 
 
   async processIdTask(id : any, query: any){
-    if (query.terminated || query.processedIds.indexOf(id) !== -1) { return null }
+    if (query.terminated /*|| query.processedIds.indexOf(id) !== -1*/) { return null }
     let processed =  await query.parser.process(id)
     query.processedIds.push(id)
     return processed

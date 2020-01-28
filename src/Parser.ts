@@ -42,33 +42,45 @@ export class Parser extends EventEmitter{
   checkCache(url : string){
     let cached = this._cache.get(url.replace(/#.*/, ''));
     if (cached !== undefined){
-      this.emit("client-cache-hit");
+      this.emit("client-cache-hit", url);
     }
     return cached;
   }
   // private treeConstructor = new TreeConstructor()
   async process(id : string){
-    let result = this.checkCache(id)
+    let result = await this.checkCache(id)
     if (result === undefined){
-      console.log("processing id", id)
       this.emit("request", id)
-      let triples = (await this.ldfetch.get(id)).triples
-      result = new TreeConstructor().getProperties(triples)
+      console.log("requesting id", id)
+      let request = this.ldfetch.get(id)
+      result = new Promise(function(resolve){
+        request.then((requestresult : any) => {
+          resolve(new TreeConstructor().getProperties(requestresult.triples))
+        })
+      })
       this._cache.set(id.replace(/#.*/, ''), result)
     }
-    return result;
+    if (result === undefined)  { throw new Error("ERROR UNDEFINED ")}
+
+    let processed : any = await result
+    return processed;
   }
 
   async processHydra(id : string){
-    let result = this.checkCache(id)
+    let result = await this.checkCache(id)
     if (result === undefined){
-      console.log("processing id", id)
       this.emit("request", id)
-      let triples = (await this.ldfetch.get(id)).triples
-      result = new HydraConstructor().getProperties(triples)
+      console.log("requesting id", id)
+      let request = this.ldfetch.get(id)
+      result = new Promise(function(resolve){
+        request.then((requestresult : any) => {
+          resolve(new HydraConstructor().getProperties(requestresult.triples))
+        })
+      })
       this._cache.set(id.replace(/#.*/, ''), result)
     }
-    return result
+    if (result === undefined)  { throw new Error("ERROR UNDEFINED ")}
+    return await result;
   }
 
   

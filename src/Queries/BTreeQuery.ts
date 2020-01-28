@@ -9,7 +9,7 @@ export class BTreeQuery extends Query {
         let relations = node.relations
         let intervalMap = this.extractRelationIntervals(relations)
         for (let intervalEntry of Array.from(intervalMap.entries())){
-          runningQueries.push(await this.followChildWithValue(intervalEntry[0], intervalEntry[1], value, level))
+          runningQueries.push(/*await*/ await this.followChildWithValue(intervalEntry[0], intervalEntry[1], value, level))
         }
       }
     }

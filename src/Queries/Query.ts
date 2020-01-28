@@ -6,14 +6,18 @@ const PromiseQueue = require("easy-promise-queue").default;
 export abstract class Query extends EventEmitter{
 
   protected parser : any;
-  terminated : boolean;
+  protected terminated : boolean;
   protected processedIds : Array<string> = []
 
   protected baseURI: string | null;
   
   protected taskqueue: any;
 
-  constructor(parser : any, baseURI : string | null, tasks: number = 1){
+  public maxamount: number;
+
+  public results = 0;
+
+  constructor(parser : any, baseURI : string | null){
     super();
     this.terminated = false
     if (parser === null || parser === undefined){
@@ -23,11 +27,14 @@ export abstract class Query extends EventEmitter{
     }
     this.baseURI = baseURI
 
-    this.taskqueue = new PromiseQueue({concurrency: 1});
+    this.taskqueue = new PromiseQueue({concurrency: 4});
+
+    this.maxamount = Infinity;
     
   }
 
-  async query(collectionId : any, value : any, session : any = null) : Promise<Array<any> | null>{
+  async query(collectionId : any, value : any, session : any = null, maxamount:number = Infinity) : Promise<Array<any> | null>{
+    this.maxamount = maxamount;
     let runningQueries = []
     
     if (session !== null){
@@ -42,19 +49,27 @@ export abstract class Query extends EventEmitter{
     } else {
       // let results = await this.processId(collectionId)
       let results = await this.addTask(this.taskqueue, this.processIdTask, collectionId, this);
-
       session = {}
       session.nodes = new Array();
-      for (let collection of results.collections){
-        if (collection.id === collectionId){
-          for (let viewRootNodeId of collection.views){
-            runningQueries.push(await this.recursiveQueryNodeInitial(viewRootNodeId, value, this.getInitialSearchValue(), 0, results))
+      if (results !== undefined && results !== null){
+        for (let collection of results.collections){
+          if (collection.id === collectionId){
+            for (let viewRootNodeId of collection.views){
+              runningQueries.push(await this.recursiveQueryNodeInitial(viewRootNodeId, value, this.getInitialSearchValue(), 0, results))
+            }
           }
-        }
-      } 
+        } 
+      }
     }
     
     await Promise.all(runningQueries)
+    if (session === null || session === undefined){
+      session = {}
+      session.nodes = [];
+    }
+    if (session.nodes === null) {
+      session.nodes = [];
+    }
     let nodeList = []
     for (let nodes of await(runningQueries)){
       for (let node of await(nodes)){
@@ -66,17 +81,21 @@ export abstract class Query extends EventEmitter{
   }
 
   async recursiveQueryNodeInitial(currentNodeId : any, value : any, followedValue : any, level : any, results: any) : Promise<Array<any>> {
-    await this.handleEmittingMembers(results, currentNodeId, followedValue, level)
+    this.handleEmittingMembers(results, currentNodeId, followedValue, level)
     return await this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
   }
-
+  
   async recursiveQueryNode(currentNodeId : any, value : any, followedValue : any, level : any) : Promise<Array<any>> {
     // let results = await this.processId(currentNodeId)
+    if (this.terminated) {
+      return [{currentNodeId : currentNodeId, value: value, relationValue: followedValue, level: level}] 
+    } 
     let results = await this.addTask(this.taskqueue, this.processIdTask, currentNodeId, this);
-    if (results === null) { 
+    
+    if (this.terminated || results === undefined || results === null) { 
       return [{currentNodeId : currentNodeId, value: value, relationValue: followedValue, level: level}] 
     }
-    await this.handleEmittingMembers(results, currentNodeId, followedValue, level)
+    this.handleEmittingMembers(results, currentNodeId, followedValue, level)
     return await this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
   }
 
@@ -90,13 +109,17 @@ export abstract class Query extends EventEmitter{
   // }
 
   async processIdTask(id : any, query: any){
-    if (query.terminated || query.processedIds.indexOf(id) !== -1) { return null }
-    let processed =  await query.parser.process(id)
-    query.processedIds.push(id)
+    // if (query.terminated || query.processedIds.indexOf(id) !== -1) { return null }
+    let processed = await query.parser.process(id)
+    if (processed === undefined || processed === null){
+      processed = null;
+    } else {
+      query.processedIds.push(id)
+    }
     return processed
   }
 
-  async handleEmittingMembers(results : any, searchedNodeId : any, nodeValue: any, level : any){
+  handleEmittingMembers(results : any, searchedNodeId : any, nodeValue: any, level : any){
     for (let node of results.nodes){
       if (node.id === searchedNodeId){
         node.level = level
@@ -105,17 +128,19 @@ export abstract class Query extends EventEmitter{
       }
     }
     this.emit("data", results)
+    if (nodeValue !== null && nodeValue !== undefined){
+      this.emit("followedRelationValue", nodeValue)
+    }
   }
 
   addTask(taskqueue : any, fct : Function, ...args : any[]) : Promise<any> | null {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (outerresolve, outerreject) {
       taskqueue.add(() => {
         return new Promise(function (resolve, reject) {
-          fct(...args).then( (e:any) => resolve(e))
-        }).then( (e:any) => {resolve(e)});
+          fct(...args).then( (e:any) => resolve(e)).catch( (e:any) => reject(e))
+        }).then( (e:any) => {outerresolve(e)}).catch( (e:any) => {outerreject(e)});
       });
     })
-   
   }
 
   getInitialSearchValue() : any{
@@ -125,4 +150,9 @@ export abstract class Query extends EventEmitter{
   interrupt(){
     this.terminated = true;
   }
+
+  isTerminated(){
+    return this.terminated
+  }
+
 }

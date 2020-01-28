@@ -1,6 +1,8 @@
 import { Query } from './Query';
+import { Normalizer } from './Normalizer';
 
-const normalizeString = function(e : string) {return e.toLowerCase()}
+// const normalizeString = function(e : string) {return e.toLowerCase()}
+const normalizeString = function(e : string) { return Normalizer.normalize(e) }
 
 
 export class PrefixQuery extends Query {  
@@ -13,7 +15,7 @@ export class PrefixQuery extends Query {
       if (node.id === nodeId){  
         for (let relation of node.relations){
           if (relation.type === "https://w3id.org/tree#PrefixRelation"){
-            runningQueries.push(await this.followChildWithValue(relation.node, relation.value, value, level))
+            runningQueries.push( /*await*/ await this.followChildWithValue(relation.node, relation.value, value, level))
           }
         }
       }
@@ -29,7 +31,9 @@ export class PrefixQuery extends Query {
   async followChildWithValue(relationNodeId: any, relationValue: any, searchValue: any, level: any) : Promise<Array<any>> {
     let normalizedPrefixString = normalizeString(searchValue)
     let normalizedRelationValue = normalizeString(relationValue)
-    if (normalizedPrefixString.startsWith(normalizedRelationValue) || normalizedRelationValue.startsWith(normalizedPrefixString) ){
+    if ( (normalizedPrefixString.startsWith(normalizedRelationValue) || normalizedRelationValue.startsWith(normalizedPrefixString)) &&  relationValue.length === level){
+      return await this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level)
+    } else if (searchValue === relationValue){
       return await this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level)
     } else {
       return []

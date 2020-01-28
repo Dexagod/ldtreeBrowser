@@ -1,3 +1,4 @@
+import { QuadConverter } from '../Clients/Converter/QuadConverer';
 const TREEONTOLOGY: string = 'https://w3id.org/tree#';
 const HYDRA = "http://www.w3.org/ns/hydra/core#"
 const TYPE: string =

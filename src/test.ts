@@ -33,3 +33,12 @@ for (let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]) {
   counter.count(i)
   
 }
+
+// while (not_all_items_found){
+//   for (item in page){
+//     if (filter(item)){
+//       emit (item)
+//     }
+//   }
+//   page = page.next
+// }

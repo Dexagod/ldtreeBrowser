@@ -12,10 +12,7 @@ export class WKTStringQuery extends Query {
       if (node.id === nodeId){
         for (let relation of node.relations){
           if (relation.type === "https://w3id.org/tree#GeospatiallyContainsRelation"){
-            let childValue = terraformerparser.parse(relation.value);
-            if (this.isContained(childValue, value) || this.isOverlapping(childValue, value)) {
-              runningQueries.push(await this.followChildWithValue(relation.node, relation.value, value, level))
-            }
+            runningQueries.push(/*await*/ await this.followChildWithValue(relation.node, relation.value, value, level))
           }
         }
       }
@@ -38,10 +35,38 @@ export class WKTStringQuery extends Query {
   }
 
 
-  isContained(containerObject: any, containedObject: any) {
+
+  private bboxContainsPoint(bbox: any, pointCoordinates: any){
+    if ((bbox[0] <= pointCoordinates[0] && pointCoordinates[0] <= bbox[2]) &&
+    (bbox[1] <= pointCoordinates[1] && pointCoordinates[1] <= bbox[3])){
+      return true;
+    }
+    return false;
+  }
+
+
+  private isContained(container: any, contined_object : any) : boolean {
+    // if (childGeoObject instanceof terraformer.Point)  { return false } // Point cannot contain other polygon or point
     try {
-      return (new terraformer.Primitive(containerObject).contains(containedObject))
-    } catch(err){ return false; }
+      if (! container.contains(contined_object)){
+        let bbox = container.bbox();
+        if (contined_object instanceof terraformer.Point){
+          return this.bboxContainsPoint(bbox, contined_object.coordinates)
+        } else if (contined_object instanceof terraformer.Polygon){
+          for (let coordinate of contined_object.coordinates[0]){
+            if (! this.bboxContainsPoint(bbox, coordinate)){
+              return false;
+            }
+          }
+          return true
+        }
+        return false
+      } else {
+        return true;
+      }
+    } catch(err){
+        return false;
+    }
   }
 
   isOverlapping(containerObject: any, containedObject: any) {
@@ -49,6 +74,5 @@ export class WKTStringQuery extends Query {
       return (new terraformer.Primitive(containerObject).intersects(containedObject))
     } catch(err){ return false; }
   }
-
 
 }
