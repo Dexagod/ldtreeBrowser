@@ -22,7 +22,7 @@ export class BTreePrefixQuery extends BTreeQuery {
     if ((intervalltstring === undefined || value.localeCompare(intervalltstring) < 0 || intervalltstring.startsWith(value) ) &&
       (intervalltestring === undefined || value.localeCompare(intervalltestring) <= 0 || intervalltestring.startsWith(value) ) &&
       (intervalgtestring === undefined || value.localeCompare(intervalgtestring) >= 0 || intervalgtestring.startsWith(value) ) &&
-      (intervalgtstring === undefined || value.localeCompare(intervalgtstring) > 0 || intervalgtstring.startsWith(value) ))
+      (intervalgtstring === undefined || value.localeCompare(intervalgtstring) >= 0 || intervalgtstring.startsWith(value) ))
     {
       return true;
     }

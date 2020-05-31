@@ -95,6 +95,7 @@ export class Normalizer {
         str = str.replace(defaultDiacriticsRemovalMap[i].letters, defaultDiacriticsRemovalMap[i].base);
     }
     
-    return str.trim().toLocaleLowerCase().replace(pattSpace, " ").replace(pattNoSpace, "").replace(/\s\s+/g, ' ').trim()
+    return str.toLocaleLowerCase().replace(pattSpace, " ").replace(pattNoSpace, "").replace(/\s\s+/g, ' ')
+    // return str.trim().toLocaleLowerCase().replace(pattSpace, " ").replace(pattNoSpace, "").replace(/\s\s+/g, ' ').trim()
   }
 }

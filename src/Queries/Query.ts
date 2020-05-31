@@ -12,6 +12,7 @@ export abstract class Query extends EventEmitter{
   protected baseURI: string | null;
   
   protected taskqueue: any;
+  private resultIds = new Set();
 
   public maxamount: number;
 
@@ -31,6 +32,14 @@ export abstract class Query extends EventEmitter{
 
     this.maxamount = Infinity;
     
+  }
+
+  addResult(id: string){
+    this.resultIds.add(id)
+    if(this.resultIds.size > this.maxamount){
+      this.interrupt();
+    }
+
   }
 
   async query(collectionId : any, value : any, session : any = null, maxamount:number = Infinity) : Promise<Array<any> | null>{

@@ -1,8 +1,8 @@
 import { TreeConstructor } from './Helpers/TreeConstructor';
 import { EventEmitter } from 'events';
 import { HydraConstructor } from './Helpers/HydraConstructor'
-import Cache = require('node-cache');
-let fetcher = require('ldfetch')
+const Cache = require('node-cache');
+const fetcher = require('ldfetch')
 
 export class Parser extends EventEmitter{
   private ldfetch : any;
@@ -14,12 +14,12 @@ export class Parser extends EventEmitter{
   constructor(){
     super()
     this.ldfetch = new fetcher({})
-    this.ldfetch.on("cache-miss", (obj:any) => {
-      this.emit("client-cache-miss", obj)
-    }) 
-    this.ldfetch.on("cache-hit", (obj:any) => {
-      this.emit("client-cache-hit", obj)
-    }) 
+    // this.ldfetch.on("cache-miss", (obj:any) => {
+    //   this.emit("client-cache-miss", obj)
+    // }) 
+    // this.ldfetch.on("cache-hit", (obj:any) => {
+    //   this.emit("client-cache-hit", obj)
+    // }) 
     this.ldfetch.on("downloaded", (obj:any) => {
       this.emit("downloaded", obj)
     })
@@ -43,6 +43,8 @@ export class Parser extends EventEmitter{
     let cached = this._cache.get(url.replace(/#.*/, ''));
     if (cached !== undefined){
       this.emit("client-cache-hit", url);
+    } else {
+      this.emit("client-cache-miss", url);
     }
     return cached;
   }
@@ -51,7 +53,7 @@ export class Parser extends EventEmitter{
     let result = await this.checkCache(id)
     if (result === undefined){
       this.emit("request", id)
-      console.log("requesting id", id)
+      // console.log("requesting id", id)
       let request = this.ldfetch.get(id)
       result = new Promise(function(resolve){
         request.then((requestresult : any) => {
@@ -70,7 +72,7 @@ export class Parser extends EventEmitter{
     let result = await this.checkCache(id)
     if (result === undefined){
       this.emit("request", id)
-      console.log("requesting id", id)
+      // console.log("requesting id", id)
       let request = this.ldfetch.get(id)
       result = new Promise(function(resolve){
         request.then((requestresult : any) => {

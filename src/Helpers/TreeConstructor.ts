@@ -32,6 +32,8 @@ export class TreeConstructor {
   relationType: Map<string, string> = new Map();
   relationValue: Map<string, any> = new Map();
   relationNode: Map<string, string> = new Map();
+  relationPaths: Map<string, string> = new Map();
+  relationRemainingItems: Map<string, number> = new Map();
   
   getProperties(quads : any) : Array<Node>{
     for (let quad of quads){
@@ -57,14 +59,16 @@ export class TreeConstructor {
         }
 
       } else if (quad.predicate.value === HYDRA + "totalItems") {
-        const nodeId = quad.subject.value;
-        const remainingItems = quad.object.value;
-        this.nodeRemainingItems.set(nodeId, remainingItems)
+        const id = quad.subject.value;
+        const remainingItems = parseInt(quad.object.value, 10);
+        this.nodeRemainingItems.set(id, remainingItems)
+        this.relationRemainingItems.set(id, remainingItems)
 
       } else if (quad.predicate.value === TREEONTOLOGY + "remainingItems") {
-        const nodeId = quad.subject.value;
-        const remainingItems = quad.object.value;
-        this.nodeRemainingItems.set(nodeId, remainingItems)
+        const id = quad.subject.value;
+        const remainingItems = parseInt(quad.object.value, 10);
+        this.nodeRemainingItems.set(id, remainingItems)
+        this.relationRemainingItems.set(id, remainingItems)
 
       } else if (quad.predicate.value === TYPE) {
         // Test all relation types
@@ -83,6 +87,11 @@ export class TreeConstructor {
         const nodeId = quad.subject.value;
         const relationNode = quad.object.value;
         this.relationNode.set(nodeId, relationNode)
+
+      } else if (quad.predicate.value === TREEONTOLOGY + "path") {
+        const nodeId = quad.subject.value;
+        const propvalue = quad.object.value;
+        this.relationPaths.set(nodeId, propvalue)
       }
 
       else if (quad.predicate.value === HYDRA + "view") {
@@ -128,12 +137,12 @@ export class TreeConstructor {
     let relationType = this.relationType.get(relationBlankId)
     let relationValue = this.relationValue.get(relationBlankId)
     let relationNode = this.relationNode.get(relationBlankId)
-    if (relationType === undefined || relationType === null ||
-        relationValue === undefined || relationValue === null ||
-        relationNode === undefined || relationNode === null ){
+    let relationPath = this.relationPaths.get(relationBlankId)
+    let relationRemainingItems = this.relationRemainingItems.get(relationBlankId)
+    if (!relationType || !relationValue || !relationNode){
           return null;
         }
-    return new Relation(relationType, relationValue, relationNode)
+    return new Relation(relationType, relationValue, relationNode, relationPath, relationRemainingItems)
   }
 
   private constructRelationsForNode(nodeId: string) : Array<Relation> {
@@ -158,7 +167,7 @@ export class TreeConstructor {
   private constructCollections() : Array<Collection> {
     let collections = new Array<Collection>();
 
-    for (let key of this.collections){
+    for (let key of Array.from(this.collections)){
       let collectionMembers = this.collectionMembers.get(key)
       let collectionViews = this.collectionViews.get(key)
       collectionMembers = collectionMembers === undefined? [] : collectionMembers
@@ -204,11 +213,15 @@ export class Relation {
   type: string;
   value: any;
   node : string;
+  path : string | undefined;
+  remainingItems: number | undefined;
 
-  constructor (type: string, value: any, node: string) {
+  constructor (type: string, value: any, node: string, path?: string, remainingItems?: number) {
     this.type = type;
     this.value = value;
     this.node = node;
+    this.path = path;
+    this.remainingItems = remainingItems;
   }
 }
 

@@ -106,7 +106,7 @@ export class HydraConstructor {
   private constructCollections() : Array<Collection> {
     let collections = new Array<Collection>();
 
-    for (let key of this.collections){
+    for (let key of Array.from(this.collections)){
       let collectionMembers = this.collectionMembers.get(key)
       let collectionViews = this.collectionViews.get(key)
       collectionMembers = collectionMembers === undefined? [] : collectionMembers
