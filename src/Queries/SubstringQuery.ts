@@ -22,10 +22,10 @@ export class SubstringQuery extends Query {
   relationQueue = new TinyQueue([], function(a:any, b:any) { return b.count - a.count});
   rootNodeItems = null;
 
-  constructor(){
-    super();
-    this.checkRelationFunction = this.checkRelationFunction.bind(this);
-  }
+  // constructor(){
+  //   super();
+  //   this.checkRelationFunction = this.checkRelationFunction.bind(this);
+  // }
 
   async query(collectionId : any, value : any, session : any = null, maxamount:number = Infinity) : Promise<any>{
     // let results = await this.processId(collectionId)
@@ -47,17 +47,17 @@ export class SubstringQuery extends Query {
   //   const results = await asyncPool(2, timings, timeout);
   // }
 
-  checkRelationFunction = async function (ro: RelationObject) { !this.terminated && await this.recursiveQueryNode(ro.relationnode, ro.value, ro.relationvalue, ro.level) }
+  // checkRelationFunction = async function (ro: RelationObject) { !this.terminated && await this.recursiveQueryNode(ro.relationnode, ro.value, ro.relationvalue, ro.level) }
 
 
-  async recursiveQueryNode(currentNodeId : any, value : any, followedValue : any, level : any) : Promise<any> {
-    if (this.terminated) return;
-    let results = await this.addTask(this.taskqueue, this.processIdTask, currentNodeId, this);
-    if (this.terminated || results === undefined || results === null) return;
+  // async recursiveQueryNode(currentNodeId : any, value : any, followedValue : any, level : any) : Promise<any> {
+  //   if (this.terminated) return;
+  //   let results = await this.addTask(this.taskqueue, this.processIdTask, currentNodeId, this);
+  //   if (this.terminated || results === undefined || results === null) return;
 
-    this.handleEmittingMembers(results, currentNodeId, followedValue, level)
-    return await this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
-  }
+  //   this.handleEmittingMembers(results, currentNodeId, followedValue, level)
+  //   return await this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
+  // }
 
 
   async followChildRelations(nodeId : any, nodesMetadata : any, value : any, followedValue : any, level : any) : Promise<any> {
@@ -79,6 +79,7 @@ export class SubstringQuery extends Query {
   }
 
   async followChildWithValue(relationNodeId: any, relationValue: any, searchValue: any, level: any) : Promise<Array<any>> {
+    console.log("HERE")
     throw new Error("Method not implemented")
   }
 
