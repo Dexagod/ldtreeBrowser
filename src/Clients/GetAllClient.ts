@@ -8,5 +8,7 @@ export class GetAllClient extends Client {
     convertSearchValue(value:any){
       return value;
     }
+
+    reset(){ }
   }
   

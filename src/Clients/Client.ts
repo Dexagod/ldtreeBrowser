@@ -126,11 +126,14 @@ export abstract class Client extends EventEmitter{
       query.interrupt();
     }
     this.queryArray = new Array()
+    this.reset();
   }
 
   async await_running_queries(){
     await Promise.all(this.queryArray)
   }
+
+  abstract reset(): void;
 }
 
 

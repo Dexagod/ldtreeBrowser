@@ -58,4 +58,6 @@ export class WKTClient extends Client {
   convertSearchValue(value:any){
     return wktparser.parse(value);
   }
+
+  reset(){ }
 }

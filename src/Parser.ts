@@ -52,11 +52,13 @@ export class Parser extends EventEmitter{
   async process(id : string){
     let result = await this.checkCache(id)
     if (result === undefined){
-      this.emit("request", id)
       // console.log("requesting id", id)
+      console.time("ldfetch")
       let request = this.ldfetch.get(id)
       result = new Promise(function(resolve){
         request.then((requestresult : any) => {
+          console.timeEnd("ldfetch")
+          console.time("processing")
           resolve(new TreeConstructor().getProperties(requestresult.triples))
         })
       })
@@ -65,6 +67,7 @@ export class Parser extends EventEmitter{
     if (result === undefined)  { throw new Error("ERROR UNDEFINED ")}
 
     let processed : any = await result
+    console.timeEnd("processing")
     return processed;
   }
 

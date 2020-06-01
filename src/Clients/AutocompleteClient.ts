@@ -11,4 +11,6 @@ export class AutocompleteClient extends Client {
   convertSearchValue(value:any){
     return this.normalizeString(value);
   }
+
+  reset(){ }
 }

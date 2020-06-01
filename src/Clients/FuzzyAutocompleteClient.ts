@@ -11,6 +11,7 @@ export class FuzzyAutocompleteClient extends Client {
   
   K: number;
   N: number;
+  topNMembers : Array<EmitObject> = [];
   constructor(K = defaultK, N = defaultN){
     super();
     this.K = K;
@@ -30,7 +31,6 @@ export class FuzzyAutocompleteClient extends Client {
 
 
 
-  topNMembers : Array<EmitObject> = [];
   async handleEmitData(query: Query, data: any, shaclpath: Array<string>, searchValue: any, collectionId: string) {
 
     let ids = new Set(this.topNMembers.map(e => e.id));
@@ -39,6 +39,8 @@ export class FuzzyAutocompleteClient extends Client {
     await converter.processQuads(data.quads)
 
     let newTopMembers = []
+
+    console.log("EMIT DATA")
 
     let scores = this.topNMembers.map(e=>e.score)
     let minScore = scores.length ? Math.min( ...scores ) : 0;
@@ -50,7 +52,7 @@ export class FuzzyAutocompleteClient extends Client {
         let value = converter.getIdOrValue(quad.object);
         if (value) {
           ids.add(subjectId)
-          let score = this.getNGramScore(searchValue, value)
+          let score = this.getNGramScore(Normalizer.normalize(searchValue), Normalizer.normalize(value))
           if(score > minScore){
             let scoringObject : EmitObject = {
               id: subjectId,
@@ -89,6 +91,10 @@ export class FuzzyAutocompleteClient extends Client {
     let results = []
     for (let i = 0; i < value.length - n +1; i++) {results.push(value.substring(i, i+n))}
     return results;
+  }
+
+  reset(){ 
+    this.topNMembers = [];
   }
 
 }

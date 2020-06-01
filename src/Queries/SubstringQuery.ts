@@ -30,7 +30,7 @@ export class SubstringQuery extends Query {
             if(count > 0){
               // runningQueries.push({count: count, relation: await this.followChildWithValue(relation.node, relation.value, value, level)})
               // console.log("pushing", "followed", followedValue, "relation", "'" + relation.value + "'", count)
-              console.log("pushing", relation.value)
+              // console.log("pushing", relation.value)
               this.relationQueue.push({count: count, relationnode: relation.node, relationvalue: relation.value, value: value, level: level})
             }
           }
@@ -43,6 +43,7 @@ export class SubstringQuery extends Query {
     while (this.relationQueue.length){
       let relationData = this.relationQueue.pop()
       let queryExecution = await this.followChildWithValue(relationData.relationnode, relationData.relationvalue, relationData.value, relationData.level)
+      // let queryExecution = this.followChildWithValue(relationData.relationnode, relationData.relationvalue, relationData.value, relationData.level)
       runningQueries.push(queryExecution);
     }
     await Promise.all(runningQueries);
@@ -102,9 +103,9 @@ export class SubstringQuery extends Query {
     let prefixMultiplier = normalizedSearchValue.startsWith(normalizedRelationValue) ? PREFIXMULTIPLIERWEIGHT : 1
     remainingItemsPercentage = ((!remainingItemsPercentage || remainingItemsPercentage === 0 || remainingItemsPercentage < 0 || remainingItemsPercentage > 1) ? 0.5 : remainingItemsPercentage) 
 
-    let matchPercentage = count / relationNGrams.length
-    let matchPercentageMultiplier = Math.pow(matchPercentage, 2) * MATCHPERCENTAGEWEIGHT
-    let remainingItemsMultiplier = (1 - remainingItemsPercentage) * REMAININGITEMSWEIGHT
+    let matchPercentage = (count / relationNGrams.length) || 0.5
+    let matchPercentageMultiplier = (Math.pow(matchPercentage, 2) * MATCHPERCENTAGEWEIGHT) || 0.5
+    let remainingItemsMultiplier = ((1 - remainingItemsPercentage) * REMAININGITEMSWEIGHT) || 0.5
 
     if (relationType && relationType === TREE+"EqualThanRelation"){
       remainingItemsMultiplier *= EQUALSPENALTYWEIGHT

@@ -1,6 +1,6 @@
 {
-  "name": "treebrowser",
-  "version": "1.0.0",
+  "name": "rdf_tree_browser",
+  "version": "1.1.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -10,10 +10,13 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^12.12.14",
+    "@types/tiny-async-pool": "^1.0.0",
     "@types/typescript": "^2.0.0",
     "easy-promise-queue": "^0.5.7",
-    "ldfetch": "file:../ldfetch",
+    "ldfetch": "^1.1.2",
     "node-cache": "^5.1.0",
-    "terraformer-wkt-parser": "^1.2.1"
+    "terraformer-wkt-parser": "^1.2.1",
+    "tiny-async-pool": "^1.1.0",
+    "tinyqueue": "^2.0.3"
   }
 }
