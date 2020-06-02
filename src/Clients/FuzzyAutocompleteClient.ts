@@ -2,6 +2,9 @@ import { Client } from './Client';
 import { Normalizer } from '../Queries/Normalizer';
 import { Query } from '../Queries/Query';
 import { QuadConverter } from './Converter/QuadConverer';
+
+var stringSimilarity = require('string-similarity');
+
 const normalizeString = function(e : string) { return Normalizer.normalize(e) }
 
 const defaultN = 2;
@@ -24,6 +27,7 @@ export class FuzzyAutocompleteClient extends Client {
     for (let nsvalue of nsvalues) {
       if(nsvalue.includes(nrvalue) || nrvalue.includes(nsvalue)){
         return true;
+        var similarity = stringSimilarity.compareTwoStrings('healed', 'sealed'); 
       }
     }
     return false;
@@ -42,9 +46,8 @@ export class FuzzyAutocompleteClient extends Client {
 
     console.log("EMIT DATA")
 
-    let scores = this.topNMembers.map(e=>e.score)
-    let minScore = scores.length ? Math.min( ...scores ) : 0;
-    // console.log("minscore", minScore)
+    let scores = this.topNMembers.map(e=>e.score) // Get the current list of scores from the present TOPN 
+    let minScore = scores.length ? Math.min( ...scores ) : 0; // Get the minimum score to beat
     for (let quad of data.quads){
       let subjectId = converter.getIdOrValue(quad.subject)
       // this.allItems.add(subject)
@@ -52,7 +55,8 @@ export class FuzzyAutocompleteClient extends Client {
         let value = converter.getIdOrValue(quad.object);
         if (value) {
           ids.add(subjectId)
-          let score = this.getNGramScore(Normalizer.normalize(searchValue), Normalizer.normalize(value))
+          // let score = this.getNGramScore(Normalizer.normalize(searchValue), Normalizer.normalize(value))
+          let score = stringSimilarity.compareTwoStrings(Normalizer.normalize(searchValue), Normalizer.normalize(value)); 
           if(score > minScore){
             let scoringObject : EmitObject = {
               id: subjectId,

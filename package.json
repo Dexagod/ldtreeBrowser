@@ -1,6 +1,6 @@
 {
   "name": "rdf_tree_browser",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "easy-promise-queue": "^0.5.7",
     "ldfetch": "^1.1.2",
     "node-cache": "^5.1.0",
+    "string-similarity": "^4.0.1",
     "terraformer-wkt-parser": "^1.2.1",
     "tiny-async-pool": "^1.1.0",
     "tinyqueue": "^2.0.3"
