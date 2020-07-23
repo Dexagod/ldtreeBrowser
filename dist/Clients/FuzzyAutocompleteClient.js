@@ -17,11 +17,13 @@ const normalizeString = function (e) { return Normalizer_1.Normalizer.normalize(
 const defaultN = 2;
 const defaultK = 20;
 class FuzzyAutocompleteClient extends Client_1.Client {
-    constructor(K = defaultK, N = defaultN) {
+    constructor(K = defaultK, N = defaultN, minScore = 0.5) {
         super();
         this.topNMembers = [];
         this.K = K;
         this.N = N;
+        this.minScore = minScore;
+        this.emmited = new Set();
     }
     filterValue(value, searchValue) {
         let nsvalues = normalizeString(searchValue).split(" ");
@@ -42,18 +44,19 @@ class FuzzyAutocompleteClient extends Client_1.Client {
             yield converter.processQuads(data.quads);
             let newTopMembers = [];
             console.log("EMIT DATA");
-            let scores = this.topNMembers.map(e => e.score); // Get the current list of scores from the present TOPN 
-            let minScore = scores.length ? Math.min(...scores) : 0; // Get the minimum score to beat
+            //let scores = this.topNMembers.map(e=>e.score) // Get the current list of scores from the present TOPN 
+            //let minScore = scores.length ? Math.min( ...scores ) : 0; // Get the minimum score to beat
             for (let quad of data.quads) {
                 let subjectId = converter.getIdOrValue(quad.subject);
                 // this.allItems.add(subject)
-                if (!ids.has(subjectId) && converter.getIdOrValue(quad.predicate) === shaclpath[0]) { // TODO => place matching library here
+                if (!ids.has(subjectId) && converter.getIdOrValue(quad.predicate) === shaclpath[0] && !this.emmited.has(subjectId)) { // TODO => place matching library here
+                    this.emmited.add(subjectId);
                     let value = converter.getIdOrValue(quad.object);
                     if (value) {
                         ids.add(subjectId);
                         // let score = this.getNGramScore(Normalizer.normalize(searchValue), Normalizer.normalize(value))
                         let score = stringSimilarity.compareTwoStrings(Normalizer_1.Normalizer.normalize(searchValue), Normalizer_1.Normalizer.normalize(value));
-                        if (score > minScore) {
+                        if (score >= this.minScore) {
                             let scoringObject = {
                                 id: subjectId,
                                 value: value,
@@ -93,6 +96,7 @@ class FuzzyAutocompleteClient extends Client_1.Client {
     }
     reset() {
         this.topNMembers = [];
+        this.emmited = new Set();
     }
 }
 exports.FuzzyAutocompleteClient = FuzzyAutocompleteClient;

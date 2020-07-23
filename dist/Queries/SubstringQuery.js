@@ -54,8 +54,8 @@ class SubstringQuery extends Query_1.Query {
             let runningQueries = [];
             while (this.relationQueue.length) {
                 let relationData = this.relationQueue.pop();
-                let queryExecution = yield this.followChildWithValue(relationData.relationnode, relationData.relationvalue, relationData.value, relationData.level);
-                // let queryExecution = this.followChildWithValue(relationData.relationnode, relationData.relationvalue, relationData.value, relationData.level)
+                //let queryExecution = await this.followChildWithValue(relationData.relationnode, relationData.relationvalue, relationData.value, relationData.level)
+                let queryExecution = this.followChildWithValue(relationData.relationnode, relationData.relationvalue, relationData.value, relationData.level);
                 runningQueries.push(queryExecution);
             }
             yield Promise.all(runningQueries);
@@ -70,7 +70,7 @@ class SubstringQuery extends Query_1.Query {
             let count = this.checkValue(searchValue, relationValue);
             if (count > 0 && !this.terminated) {
                 console.log("FOLLOWING", "'" + relationValue + "'", count);
-                return yield this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level);
+                return this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level);
             }
             return [];
         });
@@ -98,7 +98,7 @@ class SubstringQuery extends Query_1.Query {
         let ngramsize = 2; // Math.min(searchValue.length, relationValue.length) === 2 ? 2 : 3
         let normalizedSearchValue = normalizeString(searchValue);
         let normalizedRelationValue = normalizeString(relationValue);
-        let searchNGrams = this.getNgrams(normalizedSearchValue, ngramsize);
+        // let searchNGrams = this.getNgrams(normalizedSearchValue, ngramsize)
         let relationNGrams = this.getNgrams(normalizedRelationValue, ngramsize);
         let count = 0;
         for (let relationNGram of relationNGrams) {

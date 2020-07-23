@@ -46,7 +46,7 @@ class Query extends events_1.EventEmitter {
                         runningQueries.push([node]);
                     }
                     else {
-                        runningQueries.push(yield this.followChildWithValue(node.currentNodeId, node.relationValue, value, node.level));
+                        runningQueries.push(this.followChildWithValue(node.currentNodeId, node.relationValue, value, node.level));
                     }
                 }
             }
@@ -59,7 +59,7 @@ class Query extends events_1.EventEmitter {
                     for (let collection of results.collections) {
                         if (collection.id === collectionId) {
                             for (let viewRootNodeId of collection.views) {
-                                runningQueries.push(yield this.recursiveQueryNodeInitial(viewRootNodeId, value, this.getInitialSearchValue(), 0, results));
+                                runningQueries.push(this.recursiveQueryNodeInitial(viewRootNodeId, value, this.getInitialSearchValue(), 0, results));
                             }
                         }
                     }
@@ -86,7 +86,7 @@ class Query extends events_1.EventEmitter {
     recursiveQueryNodeInitial(currentNodeId, value, followedValue, level, results) {
         return __awaiter(this, void 0, void 0, function* () {
             this.handleEmittingMembers(results, currentNodeId, followedValue, level);
-            return yield this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1);
+            return this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1);
         });
     }
     recursiveQueryNode(currentNodeId, value, followedValue, level) {
@@ -100,7 +100,7 @@ class Query extends events_1.EventEmitter {
                 return [{ currentNodeId: currentNodeId, value: value, relationValue: followedValue, level: level }];
             }
             this.handleEmittingMembers(results, currentNodeId, followedValue, level);
-            return yield this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1);
+            return this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1);
         });
     }
     // async processId(id : any){

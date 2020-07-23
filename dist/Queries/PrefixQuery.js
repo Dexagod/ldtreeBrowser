@@ -27,11 +27,11 @@ class PrefixQuery extends Query_1.Query {
                         console.log(relation.type, normalizedPrefixString, normalizedRelationValue);
                         if (relation.type === "https://w3id.org/tree#PrefixRelation" && (normalizedPrefixString.startsWith(normalizedRelationValue) || normalizedRelationValue.startsWith(normalizedPrefixString))) {
                             console.log("prefixRELATION", relation.value);
-                            runningQueries.push(/*await*/ yield this.followChildWithValue(relation.node, relation.value, value, level));
+                            runningQueries.push(/*await*/ this.followChildWithValue(relation.node, relation.value, value, level));
                         }
                         else if (relation.type === "https://w3id.org/tree#EqualThanRelation" && normalizedPrefixString === normalizedRelationValue) {
                             console.log("FOLLOWING EQUALS", relation.value);
-                            runningQueries.push(/*await*/ yield this.followChildWithValue(relation.node, relation.value, value, level));
+                            runningQueries.push(/*await*/ this.followChildWithValue(relation.node, relation.value, value, level));
                         }
                     }
                 }
@@ -49,10 +49,10 @@ class PrefixQuery extends Query_1.Query {
             let normalizedPrefixString = normalizeString(searchValue);
             let normalizedRelationValue = normalizeString(relationValue);
             if (normalizedPrefixString.startsWith(normalizedRelationValue) || normalizedRelationValue.startsWith(normalizedPrefixString)) {
-                return yield this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level);
+                return this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level);
             }
             else if (searchValue === relationValue) {
-                return yield this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level);
+                return this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level);
             }
             else {
                 return [];
