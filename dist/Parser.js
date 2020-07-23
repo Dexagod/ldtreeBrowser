@@ -63,12 +63,12 @@ class Parser extends events_1.EventEmitter {
             let result = yield this.checkCache(id);
             if (result === undefined) {
                 // console.log("requesting id", id)
-                console.time("ldfetch");
+                //console.time("ldfetch")
                 let request = this.ldfetch.get(id);
                 result = new Promise(function (resolve) {
                     request.then((requestresult) => {
-                        console.timeEnd("ldfetch");
-                        console.time("processing");
+                        //console.timeEnd("ldfetch")
+                        //console.time("processing")
                         resolve(new TreeConstructor_1.TreeConstructor().getProperties(requestresult.triples));
                     });
                 });
@@ -78,7 +78,7 @@ class Parser extends events_1.EventEmitter {
                 throw new Error("ERROR UNDEFINED ");
             }
             let processed = yield result;
-            console.timeEnd("processing");
+            //console.timeEnd("processing")
             return processed;
         });
     }
