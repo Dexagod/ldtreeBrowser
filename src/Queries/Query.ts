@@ -52,7 +52,7 @@ export abstract class Query extends EventEmitter{
         if (this.terminated){
           runningQueries.push([node])
         } else {
-          runningQueries.push(await this.followChildWithValue(node.currentNodeId, node.relationValue, value, node.level))
+          runningQueries.push(this.followChildWithValue(node.currentNodeId, node.relationValue, value, node.level))
         }
       }
     } else {
@@ -64,7 +64,7 @@ export abstract class Query extends EventEmitter{
         for (let collection of results.collections){
           if (collection.id === collectionId){
             for (let viewRootNodeId of collection.views){
-              runningQueries.push(await this.recursiveQueryNodeInitial(viewRootNodeId, value, this.getInitialSearchValue(), 0, results))
+              runningQueries.push(this.recursiveQueryNodeInitial(viewRootNodeId, value, this.getInitialSearchValue(), 0, results))
             }
           }
         } 
@@ -91,7 +91,7 @@ export abstract class Query extends EventEmitter{
 
   async recursiveQueryNodeInitial(currentNodeId : any, value : any, followedValue : any, level : any, results: any) : Promise<Array<any>> {
     this.handleEmittingMembers(results, currentNodeId, followedValue, level)
-    return await this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
+    return this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
   }
   
   async recursiveQueryNode(currentNodeId : any, value : any, followedValue : any, level : any) : Promise<Array<any>> {
@@ -105,7 +105,7 @@ export abstract class Query extends EventEmitter{
       return [{currentNodeId : currentNodeId, value: value, relationValue: followedValue, level: level}] 
     }
     this.handleEmittingMembers(results, currentNodeId, followedValue, level)
-    return await this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
+    return this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
   }
 
   abstract followChildRelations(nodeId : any, nodesMetadata : any, value : any, followedValue : any, level : any) : Promise<Array<any>>;
