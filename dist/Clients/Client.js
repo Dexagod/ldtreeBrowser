@@ -11,7 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const events_1 = require("events");
 const Parser_1 = require("../Parser");
+const Normalizer_1 = require("../Queries/Normalizer");
 const QuadConverer_1 = require("./Converter/QuadConverer");
+const stringSimilarity = require('string-similarity');
 class Client extends events_1.EventEmitter {
     constructor(emitMembers = true) {
         super();
@@ -95,7 +97,15 @@ class Client extends events_1.EventEmitter {
                 if (converter.getIdOrValue(quad.predicate) === shaclpath[0]) { // TODO => place matching library here
                     if (!(this.usedItems.has(subject)) && this.filterValue(converter.getIdOrValue(quad.object), searchValue)) {
                         this.usedItems.add(subject);
-                        this.emit("data", converter.getAllConnectedItemsForId(converter.getIdOrValue(quad.subject)));
+                        const value = converter.getIdOrValue(quad.object);
+                        const score = stringSimilarity.compareTwoStrings(Normalizer_1.Normalizer.normalize(searchValue), Normalizer_1.Normalizer.normalize(value));
+                        let scoringObject = {
+                            id: subject,
+                            value: value,
+                            object: converter.getAllConnectedItemsForId(subject),
+                            score: score,
+                        };
+                        this.emit("data", scoringObject);
                         query.addResult(converter.getIdOrValue(quad.subject));
                     }
                 }

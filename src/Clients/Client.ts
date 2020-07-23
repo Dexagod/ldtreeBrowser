@@ -1,7 +1,9 @@
 import { EventEmitter } from "events";
 import { Parser } from '../Parser';
 import { Query } from '../Queries/Query';
+import { Normalizer } from '../Queries/Normalizer';
 import { QuadConverter } from './Converter/QuadConverer';
+const stringSimilarity = require('string-similarity');
 
 export abstract class Client extends EventEmitter{
   
@@ -107,7 +109,15 @@ export abstract class Client extends EventEmitter{
       if (converter.getIdOrValue(quad.predicate) === shaclpath[0]) { // TODO => place matching library here
         if(!(this.usedItems.has(subject)) && this.filterValue(converter.getIdOrValue(quad.object), searchValue)){
           this.usedItems.add(subject)
-          this.emit("data", converter.getAllConnectedItemsForId(converter.getIdOrValue(quad.subject)))
+          const value = converter.getIdOrValue(quad.object);
+          const score = stringSimilarity.compareTwoStrings(Normalizer.normalize(searchValue), Normalizer.normalize(value));
+          let scoringObject : EmitObject = {
+            id: subject,
+            value: value,
+            object: converter.getAllConnectedItemsForId(subject),
+            score: score,
+          }
+          this.emit("data", scoringObject);
           query.addResult(converter.getIdOrValue(quad.subject))
         }
       }
@@ -134,6 +144,13 @@ export abstract class Client extends EventEmitter{
   }
 
   abstract reset(): void;
+}
+
+interface EmitObject {
+  id: string,
+  value: string,
+  object: any,
+  score: number,
 }
 
 
