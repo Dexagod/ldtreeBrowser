@@ -2,6 +2,8 @@ import { Query } from './Query';
 import { Normalizer } from './Normalizer';
 import TinyQueue from "tinyqueue"
 
+const stringSimilarity = require('string-similarity');
+
 const DEFAULTCOUNT=100000
 
 const TREE = "https://w3id.org/tree#"
@@ -26,7 +28,8 @@ export class SubstringQuery extends Query {
         this.rootNodeItems = this.rootNodeItems || node.remainingItems
         for (let relation of node.relations){
           if (relation.type === TREE+"SubstringRelation" || relation.type === TREE+"EqualThanRelation"){
-            let count = this.checkValue(value, relation.value, (relation.remainingItems / (this.rootNodeItems||1)) || 0 , relation.type)
+            //let count = this.checkValue(value, relation.value, (relation.remainingItems / (this.rootNodeItems||1)) || 0 , relation.type)
+            const count = this.checkValue2(value, relation.value, node.relations.length, followedValue);
             if(count > 0){
               // runningQueries.push({count: count, relation: await this.followChildWithValue(relation.node, relation.value, value, level)})
               // console.log("pushing", "followed", followedValue, "relation", "'" + relation.value + "'", count)
@@ -54,7 +57,7 @@ export class SubstringQuery extends Query {
   }
 
   async followChildWithValue(relationNodeId: any, relationValue: any, searchValue: any, level: any) : Promise<Array<any>> {
-    let count = this.checkValue(searchValue, relationValue)
+    let count = this.checkValue2(searchValue, relationValue, null, null);
     if(count > 0 && !this.terminated){
       console.log("FOLLOWING", "'" +relationValue+"'", count);
       return this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level)
@@ -64,6 +67,23 @@ export class SubstringQuery extends Query {
 
   getInitialSearchValue() : any{
     return "";
+  }
+
+  checkValue2(searchValue: string, relationValue: string, relations: any, followedValue: any) {
+    let normalizedSearchValue = normalizeString(searchValue);
+    let normalizedRelationValue = normalizeString(relationValue);
+
+    // Skip too deep tree branches
+    if(relations && relations < 2 && followedValue === normalizedRelationValue) return 0;
+
+    const similarity = stringSimilarity.compareTwoStrings(normalizedSearchValue, normalizedRelationValue);
+    if(similarity > 0.5) {
+      return similarity * 10;
+    } else if(normalizedSearchValue.includes(normalizedRelationValue) && normalizedRelationValue.length > 1) {
+      return 1 + similarity;
+    } else {
+      return 0;
+    }
   }
   
 
