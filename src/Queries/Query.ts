@@ -91,7 +91,7 @@ export abstract class Query extends EventEmitter{
 
   async recursiveQueryNodeInitial(currentNodeId : any, value : any, followedValue : any, level : any, results: any) : Promise<Array<any>> {
     this.handleEmittingMembers(results, currentNodeId, followedValue, level)
-    return this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
+    return await this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
   }
   
   async recursiveQueryNode(currentNodeId : any, value : any, followedValue : any, level : any) : Promise<Array<any>> {
@@ -105,7 +105,7 @@ export abstract class Query extends EventEmitter{
       return [{currentNodeId : currentNodeId, value: value, relationValue: followedValue, level: level}] 
     }
     this.handleEmittingMembers(results, currentNodeId, followedValue, level)
-    return this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
+    return await this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1)
   }
 
   abstract followChildRelations(nodeId : any, nodesMetadata : any, value : any, followedValue : any, level : any) : Promise<Array<any>>;
