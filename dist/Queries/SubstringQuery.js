@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Query_1 = require("./Query");
 const Normalizer_1 = require("./Normalizer");
 const tinyqueue_1 = __importDefault(require("tinyqueue"));
+const stringSimilarity = require('string-similarity');
 const DEFAULTCOUNT = 100000;
 const TREE = "https://w3id.org/tree#";
 // const normalizeString = function(e : string) {return e.toLowerCase()}
@@ -39,7 +40,8 @@ class SubstringQuery extends Query_1.Query {
                     this.rootNodeItems = this.rootNodeItems || node.remainingItems;
                     for (let relation of node.relations) {
                         if (relation.type === TREE + "SubstringRelation" || relation.type === TREE + "EqualThanRelation") {
-                            let count = this.checkValue(value, relation.value, (relation.remainingItems / (this.rootNodeItems || 1)) || 0, relation.type);
+                            //let count = this.checkValue(value, relation.value, (relation.remainingItems / (this.rootNodeItems||1)) || 0 , relation.type)
+                            const count = this.checkValue2(value, relation.value, node.relations.length, followedValue);
                             if (count > 0) {
                                 // runningQueries.push({count: count, relation: await this.followChildWithValue(relation.node, relation.value, value, level)})
                                 // console.log("pushing", "followed", followedValue, "relation", "'" + relation.value + "'", count)
@@ -67,7 +69,7 @@ class SubstringQuery extends Query_1.Query {
     }
     followChildWithValue(relationNodeId, relationValue, searchValue, level) {
         return __awaiter(this, void 0, void 0, function* () {
-            let count = this.checkValue(searchValue, relationValue);
+            let count = this.checkValue2(searchValue, relationValue, null, null);
             if (count > 0 && !this.terminated) {
                 console.log("FOLLOWING", "'" + relationValue + "'", count);
                 return this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level);
@@ -77,6 +79,23 @@ class SubstringQuery extends Query_1.Query {
     }
     getInitialSearchValue() {
         return "";
+    }
+    checkValue2(searchValue, relationValue, relations, followedValue) {
+        let normalizedSearchValue = normalizeString(searchValue);
+        let normalizedRelationValue = normalizeString(relationValue);
+        // Skip too deep tree branches
+        if (relations && relations < 2 && followedValue === normalizedRelationValue)
+            return 0;
+        const similarity = stringSimilarity.compareTwoStrings(normalizedSearchValue, normalizedRelationValue);
+        if (similarity > 0.5) {
+            return similarity * 10;
+        }
+        else if (normalizedSearchValue.includes(normalizedRelationValue) && normalizedRelationValue.length > 1) {
+            return 1 + similarity;
+        }
+        else {
+            return 0;
+        }
     }
     /**
      * SCORING

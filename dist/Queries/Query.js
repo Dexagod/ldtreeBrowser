@@ -86,7 +86,7 @@ class Query extends events_1.EventEmitter {
     recursiveQueryNodeInitial(currentNodeId, value, followedValue, level, results) {
         return __awaiter(this, void 0, void 0, function* () {
             this.handleEmittingMembers(results, currentNodeId, followedValue, level);
-            return this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1);
+            return yield this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1);
         });
     }
     recursiveQueryNode(currentNodeId, value, followedValue, level) {
@@ -100,7 +100,7 @@ class Query extends events_1.EventEmitter {
                 return [{ currentNodeId: currentNodeId, value: value, relationValue: followedValue, level: level }];
             }
             this.handleEmittingMembers(results, currentNodeId, followedValue, level);
-            return this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1);
+            return yield this.followChildRelations(currentNodeId, results.nodes, value, followedValue, level + 1);
         });
     }
     // async processId(id : any){
