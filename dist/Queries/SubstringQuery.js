@@ -26,6 +26,7 @@ const MATCHPERCENTAGEWEIGHT = 10;
 const CUTOFFMATCHPERCENTAGE = 0.75;
 const PREFIXMULTIPLIERWEIGHT = 3;
 const EQUALSPENALTYWEIGHT = 10;
+const SIMILARITYTHRESHOLD = 0.5;
 class SubstringQuery extends Query_1.Query {
     constructor() {
         super(...arguments);
@@ -83,14 +84,17 @@ class SubstringQuery extends Query_1.Query {
     checkValue2(searchValue, relationValue, relations, followedValue) {
         let normalizedSearchValue = normalizeString(searchValue);
         let normalizedRelationValue = normalizeString(relationValue);
-        // Skip too deep tree branches
-        if (relations && relations < 2 && followedValue === normalizedRelationValue)
-            return 0;
         const similarity = stringSimilarity.compareTwoStrings(normalizedSearchValue, normalizedRelationValue);
-        if (similarity > 0.5) {
+        if (similarity > SIMILARITYTHRESHOLD) {
+            // Prioritize highly similar branches
             return similarity * 10;
         }
+        else if (relations && relations < 2 && followedValue === normalizedRelationValue) {
+            // Skip too deep and monotonous tree branches
+            return 0;
+        }
         else if (normalizedSearchValue.includes(normalizedRelationValue) && normalizedRelationValue.length > 1) {
+            // Still keep not so similar ones but that are suffixes of the query value
             return 1 + similarity;
         }
         else {
