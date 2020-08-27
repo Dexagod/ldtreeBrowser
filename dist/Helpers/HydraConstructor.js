@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Collection = exports.PCV = exports.HydraConstructor = void 0;
 const TREEONTOLOGY = 'https://w3id.org/tree#';
 const HYDRA = "http://www.w3.org/ns/hydra/core#";
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";

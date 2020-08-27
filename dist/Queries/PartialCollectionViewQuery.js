@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PartialCollectionViewQuery = void 0;
 const Query_1 = require("./Query");
 class PartialCollectionViewQuery extends Query_1.Query {
     //todo:: being able to continue querying on nodes that are stored in the session.

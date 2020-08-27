@@ -1,1 +1,1 @@
-{"version":3,"file":"KNNClient.js","sourceRoot":"","sources":["../../src/Clients/KNNClient.ts"],"names":[],"mappings":";;AAAA,qCAAkC;AAClC,MAAa,SAAU,SAAQ,eAAM;IACnC,WAAW,CAAC,IAAS,EAAE,WAAgB;QACrC,OAAO,IAAI,CAAC;IACd,CAAC;IAED,KAAK,KAAI,CAAC;CACX;AAND,8BAMC"}
+{"version":3,"file":"KNNClient.js","sourceRoot":"","sources":["../../src/Clients/KNNClient.ts"],"names":[],"mappings":";;;AAAA,qCAAkC;AAClC,MAAa,SAAU,SAAQ,eAAM;IACnC,WAAW,CAAC,IAAS,EAAE,WAAgB;QACrC,OAAO,IAAI,CAAC;IACd,CAAC;IAED,KAAK,KAAI,CAAC;CACX;AAND,8BAMC"}

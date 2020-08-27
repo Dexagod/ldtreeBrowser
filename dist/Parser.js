@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Parser = void 0;
 const TreeConstructor_1 = require("./Helpers/TreeConstructor");
 const events_1 = require("events");
 const HydraConstructor_1 = require("./Helpers/HydraConstructor");

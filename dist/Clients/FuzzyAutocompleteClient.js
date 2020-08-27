@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.FuzzyAutocompleteClient = void 0;
 const Client_1 = require("./Client");
 const Normalizer_1 = require("../Queries/Normalizer");
 const QuadConverer_1 = require("./Converter/QuadConverer");
@@ -43,7 +44,6 @@ class FuzzyAutocompleteClient extends Client_1.Client {
             let converter = new QuadConverer_1.QuadConverter();
             yield converter.processQuads(data.quads);
             let newTopMembers = [];
-            console.log("EMIT DATA");
             //let scores = this.topNMembers.map(e=>e.score) // Get the current list of scores from the present TOPN 
             //let minScore = scores.length ? Math.min( ...scores ) : 0; // Get the minimum score to beat
             for (let quad of data.quads) {

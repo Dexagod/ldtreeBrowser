@@ -49,8 +49,6 @@ export class FuzzyAutocompleteClient extends Client {
 
     let newTopMembers = []
 
-    console.log("EMIT DATA")
-
     //let scores = this.topNMembers.map(e=>e.score) // Get the current list of scores from the present TOPN 
     //let minScore = scores.length ? Math.min( ...scores ) : 0; // Get the minimum score to beat
     for (let quad of data.quads){

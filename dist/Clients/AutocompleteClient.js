@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AutocompleteClient = void 0;
 const Client_1 = require("./Client");
 const Normalizer_1 = require("../Queries/Normalizer");
 class AutocompleteClient extends Client_1.Client {

@@ -61,7 +61,6 @@ export class SubstringQuery extends Query {
   async followChildWithValue(relationNodeId: any, relationValue: any, searchValue: any, level: any) : Promise<Array<any>> {
     let count = this.checkValue2(searchValue, relationValue, null, null);
     if(count > 0 && !this.terminated){
-      console.log("FOLLOWING", "'" +relationValue+"'", count);
       return this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level)
     }
     return [];

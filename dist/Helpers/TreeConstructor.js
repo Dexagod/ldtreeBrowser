@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Collection = exports.Relation = exports.Node = exports.TreeConstructor = void 0;
 const TREEONTOLOGY = 'https://w3id.org/tree#';
 const HYDRA = "http://www.w3.org/ns/hydra/core#";
 const TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
@@ -31,7 +32,7 @@ class TreeConstructor {
         this.relationRemainingItems = new Map();
     }
     getProperties(quads) {
-        console.time("getting properties");
+        //console.time("getting properties")
         for (let quad of quads) {
             if (quad.predicate.value === TYPE &&
                 quad.object.value === HYDRA + "Collection") {
@@ -131,7 +132,7 @@ class TreeConstructor {
         ;
         let metadataObject = this.constructTree();
         metadataObject.quads = quads;
-        console.timeEnd("getting properties");
+        //console.timeEnd("getting properties")
         return metadataObject;
     }
     ;

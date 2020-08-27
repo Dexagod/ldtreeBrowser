@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.WKTStringQuery = void 0;
 const Query_1 = require("./Query");
 const terraformer = require('terraformer');
 const terraformerparser = require('terraformer-wkt-parser');

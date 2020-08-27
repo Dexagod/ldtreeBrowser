@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Query = void 0;
 const events_1 = require("events");
 const Parser_1 = require("../Parser");
 const PromiseQueue = require("easy-promise-queue").default;

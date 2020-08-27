@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Normalizer = void 0;
 class Normalizer {
     static normalize(str) {
         if (str === null || str === undefined)

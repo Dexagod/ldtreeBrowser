@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.QuadConverter = void 0;
 class QuadConverter {
     constructor() {
         this.subjectMap = new Map();

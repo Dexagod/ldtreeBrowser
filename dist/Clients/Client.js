@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Client = void 0;
 const events_1 = require("events");
 const Parser_1 = require("../Parser");
 const Normalizer_1 = require("../Queries/Normalizer");

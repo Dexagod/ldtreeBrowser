@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BTreePrefixQuery = void 0;
 const BTreeQuery_1 = require("./BTreeQuery");
 const Normalizer_1 = require("./Normalizer");
 // const normalizeString = function(e : string) {return e.toLowerCase()}

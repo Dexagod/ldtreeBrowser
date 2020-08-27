@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SubstringQuery = void 0;
 const Query_1 = require("./Query");
 const Normalizer_1 = require("./Normalizer");
 const tinyqueue_1 = __importDefault(require("tinyqueue"));
@@ -72,7 +73,6 @@ class SubstringQuery extends Query_1.Query {
         return __awaiter(this, void 0, void 0, function* () {
             let count = this.checkValue2(searchValue, relationValue, null, null);
             if (count > 0 && !this.terminated) {
-                console.log("FOLLOWING", "'" + relationValue + "'", count);
                 return this.recursiveQueryNode(relationNodeId, searchValue, relationValue, level);
             }
             return [];

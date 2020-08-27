@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Query = void 0;
 const events_1 = require("events");
 const Parser_1 = require("../Parser");
 class Query extends events_1.EventEmitter {

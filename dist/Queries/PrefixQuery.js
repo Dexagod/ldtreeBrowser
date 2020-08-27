@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PrefixQuery = void 0;
 const Query_1 = require("./Query");
 const Normalizer_1 = require("./Normalizer");
 // const normalizeString = function(e : string) {return e.toLowerCase()}
@@ -17,20 +18,16 @@ class PrefixQuery extends Query_1.Query {
     //todo:: being able to continue querying on nodes that are stored in the session.
     followChildRelations(nodeId, nodesMetadata, value, followedValue, level) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("FOLLWOW");
             let runningQueries = new Array();
             for (let node of nodesMetadata) {
                 if (node.id === nodeId) {
                     for (let relation of node.relations) {
                         let normalizedPrefixString = normalizeString(value);
                         let normalizedRelationValue = normalizeString(relation.value);
-                        console.log(relation.type, normalizedPrefixString, normalizedRelationValue);
                         if (relation.type === "https://w3id.org/tree#PrefixRelation" && (normalizedPrefixString.startsWith(normalizedRelationValue) || normalizedRelationValue.startsWith(normalizedPrefixString))) {
-                            console.log("prefixRELATION", relation.value);
                             runningQueries.push(/*await*/ this.followChildWithValue(relation.node, relation.value, value, level));
                         }
                         else if (relation.type === "https://w3id.org/tree#EqualThanRelation" && normalizedPrefixString === normalizedRelationValue) {
-                            console.log("FOLLOWING EQUALS", relation.value);
                             runningQueries.push(/*await*/ this.followChildWithValue(relation.node, relation.value, value, level));
                         }
                     }
