@@ -4,11 +4,13 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/geojson": "^7946.0.7",
     "@types/node": "^12.12.14",
     "@types/tiny-async-pool": "^1.0.0",
     "@types/typescript": "^2.0.0",

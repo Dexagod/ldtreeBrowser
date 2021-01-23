@@ -36,7 +36,7 @@ export class TreeConstructor {
   relationRemainingItems: Map<string, number> = new Map();
   
   getProperties(quads : any) : Array<Node>{
-    console.time("getting properties")
+    //console.time("getting properties")
     for (let quad of quads){
       if (quad.predicate.value === TYPE &&
         quad.object.value === HYDRA + "Collection") {
@@ -131,7 +131,7 @@ export class TreeConstructor {
 
     let metadataObject = this.constructTree()
     metadataObject.quads = quads;
-    console.timeEnd("getting properties")
+    //console.timeEnd("getting properties")
     return metadataObject
   };
 

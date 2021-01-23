@@ -1,0 +1,1 @@
+{"version":3,"file":"GetAllClient.js","sourceRoot":"","sources":["../../src/Clients/GetAllClient.ts"],"names":[],"mappings":";;;AAAA,qCAAkC;AAElC,MAAa,YAAa,SAAQ,eAAM;IACpC,WAAW,CAAC,KAAU,EAAE,WAAgB;QACtC,OAAO,IAAI,CAAC;IACd,CAAC;IAED,kBAAkB,CAAC,KAAS;QAC1B,OAAO,KAAK,CAAC;IACf,CAAC;IAED,KAAK,KAAI,CAAC;CACX;AAVH,oCAUG"}

@@ -52,7 +52,7 @@ export abstract class Query extends EventEmitter{
         if (this.terminated){
           runningQueries.push([node])
         } else {
-          runningQueries.push(await this.followChildWithValue(node.currentNodeId, node.relationValue, value, node.level))
+          runningQueries.push(this.followChildWithValue(node.currentNodeId, node.relationValue, value, node.level))
         }
       }
     } else {
@@ -64,7 +64,7 @@ export abstract class Query extends EventEmitter{
         for (let collection of results.collections){
           if (collection.id === collectionId){
             for (let viewRootNodeId of collection.views){
-              runningQueries.push(await this.recursiveQueryNodeInitial(viewRootNodeId, value, this.getInitialSearchValue(), 0, results))
+              runningQueries.push(this.recursiveQueryNodeInitial(viewRootNodeId, value, this.getInitialSearchValue(), 0, results))
             }
           }
         } 
